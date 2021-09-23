@@ -96,7 +96,7 @@
 <body>
   <header>
     <h1>Patterns of Economic Hardship in the U.S.</h1>
-    <h2>Poverty Rate By County, 2020</h2>
+    <h2>Poverty Rate By County, 2019</h2>
   </header>
 
   <div id='map'></div>
@@ -104,7 +104,8 @@
   <footer>
 
     <p>Map authored by Kenny Stancil</p>
-        <p>Data: <a href='https://data.census.gov/cedsci/'>U.S. Census Bureau</a></p>
+    <p>This map uses a geoJson file produced by joining <a href='https://www.census.gov/data/datasets/2019/demo/saipe/2019-state-and-county.html'>data</a> from the
+      U.S. Census Bureau's Small Area Income and Poverty Estimates (SAIPE) Program with U.S. county polygons.</p>
 
         <ul>
         <li>See my projects on GitHub: <a href="https://github.com/kwstancil">Kenny Stancil</a></li>
@@ -138,7 +139,7 @@
 
       var dataLayer = L.geoJson(data, {
 
-        style:function(data) {
+        style:function(feature) {
           return {
             color: '#444',
             weight: 1,
