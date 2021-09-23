@@ -172,6 +172,8 @@
 
     };
 
+    console.log(values);
+
     function getClassBreaks(dataLayer) {
 
         var values = [];
@@ -179,14 +181,12 @@
         // loop through all counties
         dataLayer.eachLayer(function(layer) {
           var value = layer.feature.properties["POV_RATE"];// access poverty rates by county
-
-          if(value != null) {
               values.push(value);
           }
 
         });
 
-        var clusters = ss.ckmeans("POV_RATE", 5);
+        var clusters = ss.ckmeans(values, 5);
 
         var breaks = clusters.map(function(cluster) {
 
