@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>Median Rent By U.S. County, 2015</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin=""/>
+  <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: whitesmoke;
+      font-family: Lato, sans-serif;
+      color: #0D0000;
+    }
+
+    header {
+      width: 80%;
+      margin: 10px auto 10px auto;
+    }
+
+    h1 {
+      display: inline-block;
+      margin-right: 20px;
+      color: #001323;
+    }
+
+    h2 {
+      display: inline-block;
+      color: #001323;
+    }
+
+    #map {
+      width: 80%;
+      height: 540px;
+      margin: 10px 10%;
+      background: whitesmoke;
+      border: 2px solid #dddedf;
+    }
+
+    a {
+      color: #004A8B;
+    }
+
+    a:hover {
+      color: rgb(67, 69, 71);
+      text-decoration: none;
+    }
+
+    .legend {
+    padding: 6px 8px;
+    font-size: 1em;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+  }
+  .legend h3 {
+    font-size: 1.1em;
+    font-weight: normal;
+    color: #001323;
+    margin: 0 0 10px 0;
+  }
+  .legend span {
+    width: 20px;
+    height: 20px;
+    float: left;
+    margin: 0 10px 4px 0;
+  }
+  .legend label {
+    font-size: 1.1em;
+  }
+  .legend label:after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+
+    footer {
+      padding: 6px 10%;
+      width: 80%;
+    }
+
+    p {
+      font-size: 1em;
+      color: #001323;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Renting in the USA</h1>
+    <h2>Median Rent By County, 2015</h2>
+  </header>
+
+  <div id='map'></div>
+
+  <footer>
+
+    <p>Map authored by Kenny Stancil</p>
+        <p>Data: <a href='https://data.census.gov/cedsci/'>U.S. Census Bureau</a></p>
+
+        <ul>
+        <li>See my projects on GitHub: <a href="https://github.com/kwstancil">Kenny Stancil</a></li>
+        <li>Visit my <a href='https://kwstancil.github.io/'>mapping portfolio</a></li>
+        </ul>
+
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+  <script src='https://unpkg.com/simple-statistics@7.6.0/dist/simple-statistics.min.js'>
+
+  </script>
+
+  <script>
+
+  jQuery("h1").html("Renting in the USA");
+
+  var options = {
+    center: [37.9, -98],
+    zoom: 4.3,
+    zoomSnap: .1,
+    zoomControl: false
+  }
+
+  var map = L.map('map', options);
+
+  $.getJSON("data/counties_median_rent_2015.json", function(data) {
+
+      var dataLayer = L.geoJson(data, {
+
+        style:function(feature) {
+          return {
+            color: '#444',
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: '#1f78b4'
+          };
+        }
+      }).addTo(map);
+
+      // draw map function
+      drawMap(dataLayer);
+    });
+
+    function drawMap(dataLayer) {
+
+      var breaks = getClassBreaks(dataLayer);
+
+      drawLegend(breaks)
+
+      dataLayer.eachLayer(function(layer) {
+
+        var props = layer.feature.properties;
+
+        layer.setStyle ( {
+          fillColor: getColor(props["RENT"], breaks)
+        });
+
+        layer.bindTooltip("<h3>" + props["NAME"] + " County" +
+        "<br>" + "Median Rent: $" + props["RENT"] + "/mo");
+        });
+
+    };
+
+    function getClassBreaks(dataLayer) {
+
+        var values = [];
+
+        // loop through all counties
+        dataLayer.eachLayer(function(layer) {
+          var value = layer.feature.properties["RENT"]; // access average rent value
+
+          if(value != null) {
+            values.push(value);
+          }
+
+        });
+
+        var clusters = ss.ckmeans(values, 6);
+
+        var breaks = clusters.map(function(cluster) {
+
+          return [cluster[0], cluster.pop()];
+        });
+
+          return breaks;
+    };
+
+    function getColor(d, breaks) {
+
+      if(d <= breaks[0][1]) {
+            return '#fef0d9';
+        } else if(d <= breaks[1][1]) {
+            return '#fdd49e';
+        } else if(d <= breaks[2][1]) {
+            return '#fdbb84';
+        } else if(d <= breaks[3][1]) {
+            return '#fc8d59';
+        } else if(d <= breaks[4][1]) {
+            return '#e34a33';
+        } else if(d <= breaks[5][1]) {
+            return '#e34a33';
+        }
+    }
+
+    function drawLegend(breaks) {
+
+      var legend = L.control( {position: 'topleft'});
+
+      legend.onAdd = function() {
+
+        var div = L.DomUtil.create('div', 'legend');
+
+        div.innerHTML = "<h3>Average Monthly Rent Prices<h3>";
+
+        for (var i = 0; i < breaks.length; i++) {
+
+          var color = getColor(breaks[i][0], breaks);
+
+          div.innerHTML +=
+          '<span style ="background:' + color + '"></span> ' +
+          '<label>' + "$" + (breaks[i][0]).toLocaleString() + ' &mdash; ' +
+          "$" + (breaks[i][1]).toLocaleString() + '<label>';
+        }
+
+        return div;
+      };
+
+      legend.addTo(map);
+    }
+
+    // Tell jQuery to wait until data is loaded before executing a function
+    $.when(dataLayer).done(function () {
+        // load, filter, and style the state outline
+        $.getJSON("data/us_states_20m.geojson", function (data) {
+
+        var stateLayer = L.geoJson(data, {
+          style: function (feature) {
+            return {
+              color: '#222222',
+              weight: 10,
+              fillOpacity: 0,
+              interactive: false
+            };
+          },
+        });
+
+    // Add layer to map!
+    stateLayer.addTo(map)
+    });
+  });
+
+  </script>
+
+</body>
+
+</html>
