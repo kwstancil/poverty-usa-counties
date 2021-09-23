@@ -3,7 +3,7 @@
 
 <head>
   <meta charset=utf-8 />
-  <title>Median Rent By U.S. County, 2015</title>
+  <title>Poverty Rates in U.S. Counties</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -95,8 +95,8 @@
 
 <body>
   <header>
-    <h1>Renting in the USA</h1>
-    <h2>Median Rent By County, 2015</h2>
+    <h1>Patterns of Economic Hardship in the U.S.</h1>
+    <h2>Poverty Rate By County, 2020</h2>
   </header>
 
   <div id='map'></div>
@@ -123,7 +123,7 @@
 
   <script>
 
-  jQuery("h1").html("Renting in the USA");
+  jQuery("h1").html("Patterns of Economic Hardship in the U.S.");
 
   var options = {
     center: [37.9, -98],
@@ -134,7 +134,7 @@
 
   var map = L.map('map', options);
 
-  $.getJSON("data/counties_median_rent_2015.json", function(data) {
+  $.getJSON("data/poverty-usa-counties.geojson", function(data) {
 
       var dataLayer = L.geoJson(data, {
 
@@ -163,11 +163,11 @@
         var props = layer.feature.properties;
 
         layer.setStyle ( {
-          fillColor: getColor(props["RENT"], breaks)
+          fillColor: getColor(props["POV_RATE"], breaks)
         });
 
-        layer.bindTooltip("<h3>" + props["NAME"] + " County" +
-        "<br>" + "Median Rent: $" + props["RENT"] + "/mo");
+        layer.bindTooltip("<h3>" + props["COUNTY"] + props["STATE"] +
+        "<br>" + "Percent living below poverty line:" + props["POV_RATE"]);
         });
 
     };
@@ -178,13 +178,12 @@
 
         // loop through all counties
         dataLayer.eachLayer(function(layer) {
-          var value = layer.feature.properties["RENT"]; // access average rent value
+          var value = layer.feature.properties["POV_RATE"]; // access poverty rates by county
 
-          if(value != null) {
             values.push(value);
-          }
+          })
 
-        });
+        };
 
         var clusters = ss.ckmeans(values, 6);
 
@@ -193,7 +192,7 @@
           return [cluster[0], cluster.pop()];
         });
 
-          return breaks;
+          return breaks
     };
 
     function getColor(d, breaks) {
@@ -221,7 +220,7 @@
 
         var div = L.DomUtil.create('div', 'legend');
 
-        div.innerHTML = "<h3>Average Monthly Rent Prices<h3>";
+        div.innerHTML = "<h3>Poverty Rates in U.S. Counties<h3>";
 
         for (var i = 0; i < breaks.length; i++) {
 
