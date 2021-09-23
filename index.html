@@ -134,7 +134,7 @@
 
   var map = L.map('map', options);
 
-  $.getJSON("data/poverty-usa-counties.geojson", function(data) {
+  $.getJSON("data/poverty_usa_counties.geojson", function(data) {
 
       var dataLayer = L.geoJson(data, {
 
@@ -166,8 +166,8 @@
           fillColor: getColor(props["POV_RATE"], breaks)
         });
 
-        layer.bindTooltip("<h3>" + props["COUNTY"] + props["STATE"] +
-        "<br>" + "Percent living below poverty line:" + props["POV_RATE"]);
+        layer.bindTooltip("<h3>" + props["COUNTY"] + ", " + props["STATE"] +
+        "<br>" + "Population living below poverty line:" + props["POV_RATE"] + " %");
         });
 
     };
@@ -178,22 +178,23 @@
 
         // loop through all counties
         dataLayer.eachLayer(function(layer) {
-          var value = layer.feature.properties["POV_RATE"]; // access poverty rates by county
+          var value = layer.feature.properties["POV_RATE"];// access poverty rates by county
 
-            values.push(value);
-          })
+          if(value != null) {
+              values.push(value);
+          }
 
-        };
+        });
 
-        var clusters = ss.ckmeans(values, 6);
+        var clusters = ss.ckmeans("POV_RATE", 5);
 
         var breaks = clusters.map(function(cluster) {
 
           return [cluster[0], cluster.pop()];
         });
 
-          return breaks
-    };
+        return breaks;
+      };
 
     function getColor(d, breaks) {
 
@@ -206,8 +207,6 @@
         } else if(d <= breaks[3][1]) {
             return '#fc8d59';
         } else if(d <= breaks[4][1]) {
-            return '#e34a33';
-        } else if(d <= breaks[5][1]) {
             return '#e34a33';
         }
     }
@@ -228,8 +227,8 @@
 
           div.innerHTML +=
           '<span style ="background:' + color + '"></span> ' +
-          '<label>' + "$" + (breaks[i][0]).toLocaleString() + ' &mdash; ' +
-          "$" + (breaks[i][1]).toLocaleString() + '<label>';
+          '<label>' + (breaks[i][0]) + ' &mdash; ' +
+          (breaks[i][1]) + '<label>';
         }
 
         return div;
@@ -237,27 +236,6 @@
 
       legend.addTo(map);
     }
-
-    // Tell jQuery to wait until data is loaded before executing a function
-    $.when(dataLayer).done(function () {
-        // load, filter, and style the state outline
-        $.getJSON("data/us_states_20m.geojson", function (data) {
-
-        var stateLayer = L.geoJson(data, {
-          style: function (feature) {
-            return {
-              color: '#222222',
-              weight: 10,
-              fillOpacity: 0,
-              interactive: false
-            };
-          },
-        });
-
-    // Add layer to map!
-    stateLayer.addTo(map)
-    });
-  });
 
   </script>
 
