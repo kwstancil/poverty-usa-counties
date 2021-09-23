@@ -136,7 +136,7 @@
 
   $.getJSON("data/poverty_usa_counties.geojson", function(data) {
 
-      var dataLayer = L.geoJson(data, {
+      var poverty = L.geoJson(data, {
 
         style:function(feature) {
           return {
@@ -149,16 +149,16 @@
       }).addTo(map);
 
       // draw map function
-      drawMap(dataLayer);
+      drawMap(poverty);
     });
 
-    function drawMap(dataLayer) {
+    function drawMap(poverty) {
 
-      var breaks = getClassBreaks(dataLayer);
+      var breaks = getClassBreaks(poverty);
 
       drawLegend(breaks)
 
-      dataLayer.eachLayer(function(layer) {
+      poverty.eachLayer(function(layer) {
 
         var props = layer.feature.properties;
 
@@ -166,35 +166,31 @@
           fillColor: getColor(props["POV_RATE"], breaks)
         });
 
-        layer.bindTooltip("<h3>" + props["COUNTY"] + ", " + props["STATE"] +
-        "<br>" + "Population living below poverty line:" + props["POV_RATE"] + " %");
+        layer.bindTooltip("<h3>" + props["COUNTY"] + "<br>" + "Population living below poverty line:" + props["POV_RATE"] + " %");
         });
 
     };
 
-    console.log(values);
-
-    function getClassBreaks(dataLayer) {
+    function getClassBreaks(poverty) {
 
         var values = [];
 
         // loop through all counties
-        dataLayer.eachLayer(function(layer) {
+        poverty.eachLayer(function(layer) {
           var value = layer.feature.properties["POV_RATE"];// access poverty rates by county
               values.push(value);
-          }
+          })
 
-        });
+        };
 
         var clusters = ss.ckmeans(values, 5);
 
         var breaks = clusters.map(function(cluster) {
 
           return [cluster[0], cluster.pop()];
-        });
 
-        return breaks;
-      };
+          return breaks;
+        });
 
     function getColor(d, breaks) {
 
