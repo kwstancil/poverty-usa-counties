@@ -178,11 +178,12 @@
 
         // loop through all counties
         dataLayer.eachLayer(function(layer) {
+
           var value = layer.feature.properties["POV_RATE"];// access poverty rates by county
               values.push(value);
           })
 
-        };
+        // These lines need to be in the function definition
 
         var clusters = ss.ckmeans(values, 5);
 
@@ -190,8 +191,15 @@
 
           return [cluster[0], cluster.pop()];
 
-          return breaks;
         });
+
+        // and this needs to be at the end of the function definition
+
+        return breaks;
+
+      };
+
+        
 
     function getColor(d, breaks) {
 
