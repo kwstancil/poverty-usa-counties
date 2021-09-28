@@ -1,7 +1,6 @@
 {
     "title": "Patterns of Economic Hardship in the U.S.",
-    "info": "To depict poverty rates by county, this map uses a geoJson file produced by joining data from
-            the U.S. Census Bureau's Small Area Income and Poverty Estimates (SAIPE) Program with U.S. county polygons",
+    "info":"To depict poverty rates by county, this map uses a geoJson file produced by joining data from the U.S. Census Bureau's Small Area Income and Poverty Estimates (SAIPE) Program with U.S. county polygons",
     "coordinates": [37.9, -98],
     "author": "Kenny Stancil",
     "link": "https://kwstancil.github.io/poverty-usa-counties/"
