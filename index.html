@@ -155,7 +155,7 @@
   var map = L.map('map', options);
 
 
-  fetch('data/poverty_usa_counties.geojson')
+  fetch('data/poverty_usa_counties.json')
     .then(function(response) {
       return response.json();
     })
