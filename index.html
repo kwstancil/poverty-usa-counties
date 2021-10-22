@@ -132,7 +132,7 @@
 
   </footer>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""></script>
@@ -142,7 +142,8 @@
 
   <script>
 
-  jQuery("h1").html("Patterns of Economic Hardship in the U.S.");
+  // jQuery("h1").html("Patterns of Economic Hardship in the U.S.");
+  document.querySelector("h1").innerHTML = "Patterns of Economic Hardship in the U.S.";
 
   var options = {
     center: [37.9, -98],
@@ -153,10 +154,13 @@
 
   var map = L.map('map', options);
 
-  var countyLayer = $.getJSON("data/poverty_usa_counties.geojson", function(data) {
 
-      var dataLayer = L.geoJson(data, {
-
+  fetch('data/poverty_usa_counties.geojson')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      const dataLayer = L.geoJson(data, {
         style:function(feature) {
           return {
             color: '#444',
@@ -166,10 +170,46 @@
           };
         }
       }).addTo(map);
-
       // draw map function
       drawMap(dataLayer);
+      // make another fetch call and send it down the promise chain
+      return fetch('data/us_states_20m.geojson')
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      L.geoJson(data, {
+        style: function (feature) {
+          return {
+            color: '#222222',
+            weight: 1.5,
+            fillOpacity: 0,
+            interactive: false
+          };
+        }
+      }).addTo(map);
+    })
+    .catch(function(error) {
+      console.log(error);
     });
+  // var countyLayer = $.getJSON("data/poverty_usa_counties.geojson", function(data) {
+
+  //     var dataLayer = L.geoJson(data, {
+
+  //       style:function(feature) {
+  //         return {
+  //           color: '#444',
+  //           weight: 1,
+  //           fillOpacity: 1,
+  //           fillColor: '#1f78b4'
+  //         };
+  //       }
+  //     }).addTo(map);
+
+  //     // draw map function
+  //     drawMap(dataLayer);
+  //   });
 
     function drawMap(dataLayer) {
 
@@ -263,25 +303,25 @@
     }
 
     // Tell jQuery to wait until data is loaded before executing a function
-    $.when(countyLayer).done(function () {
-      // load, filter, and style the state outline
-      $.getJSON("data/us_states_20m.geojson", function (data) {
+  //   $.when(countyLayer).done(function () {
+  //     // load, filter, and style the state outline
+  //     $.getJSON("data/us_states_20m.geojson", function (data) {
 
-      var stateLayer = L.geoJson(data, {
-        style: function (feature) {
-          return {
-            color: '#222222',
-            weight: 1.5,
-            fillOpacity: 0,
-            interactive: false
-          };
-        },
-      });
+  //     var stateLayer = L.geoJson(data, {
+  //       style: function (feature) {
+  //         return {
+  //           color: '#222222',
+  //           weight: 1.5,
+  //           fillOpacity: 0,
+  //           interactive: false
+  //         };
+  //       },
+  //     });
 
-    // Add layer to map!
-    stateLayer.addTo(map)
-    });
-  });
+  //   // Add layer to map!
+  //   stateLayer.addTo(map)
+  //   });
+  // });
 
   </script>
 
